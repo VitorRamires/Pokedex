@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
-
 const props = defineProps({
   speciesUrl: String,
 });
@@ -14,10 +13,8 @@ onMounted(async () => {
 
     const evolutionResponse = await fetch(speciesData.evolution_chain.url);
     evolutions.value = await evolutionResponse.json();
-
-    console.log(evolutions)
   } catch (error) {
-    console.error("Erro ao buscar informações da evolução do Pokémon:", error);
+    alert("algo deu errado!");
   }
 });
 
@@ -46,6 +43,27 @@ function evolutionChain(chain) {
   </div>
 </template>
 
-<styled scoped>
+<style scoped>
+.evolutions {
+  margin: 65px 0;
+}
 
-</styled>
+.evolutions ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: start;
+  list-style-type: none;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.evolutions li {
+  background-color: #f15151;
+  color: #ffffff;
+  width: max-content;
+  max-width: 100%;
+  padding: 5px 15px;
+  border-radius: 7px;
+}
+</style>
