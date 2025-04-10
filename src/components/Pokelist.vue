@@ -4,11 +4,44 @@ import { pokemonList } from "../api/getPokelist.js";
 import Pokeinfo from "./Pokeinfo.vue";
 
 const pokeList = ref([]);
-const filterPokemon = "";
+const filterName = ref("");
+const limit = ref(20);
+const fetching = ref(false);
+let offset = ref(0);
 
 onMounted(async () => {
-  pokeList.value = await pokemonList(filterPokemon.value);
+  await loadPokemons();
+  window.addEventListener("scroll", endScreen);
 });
+
+async function loadPokemons() {
+  if (fetching.value) {
+    return;
+  }
+
+  fetching.value = true;
+
+  const response = await pokemonList(limit.value, offset.value);
+
+  try {
+    pokeList.value.push(...response.results);
+    offset.value += 20;
+  } catch {
+    alert("Erro ao carregar mais pokemons!");
+  } finally {
+    fetching.value = false;
+  }
+}
+
+function endScreen() {
+  let scrollTop = document.documentElement.scrollTop;
+  let heightWindow = document.documentElement.offsetHeight;
+  let clientHeight = document.documentElement.clientHeight;
+
+  if (scrollTop + clientHeight >= heightWindow - 50) {
+    loadPokemons();
+  }
+}
 </script>
 
 <template>
@@ -17,26 +50,25 @@ onMounted(async () => {
       <h2>Filtros de pokemons</h2>
       <div class="filter">
         <p>Nome do pokemon</p>
-        <input type="text" v-model="filterPokemon" />
+        <input type="text" v-model="filterName" />
       </div>
 
       <div class="filter">
         <p>ID do pokemon</p>
-        <input type="text" v-model="filterPokemon" />
+        <input type="text" />
       </div>
 
       <div class="filter">
         <p>Espécie do pokemon</p>
-        <input type="text" v-model="filterPokemon" />
+        <input type="text" />
       </div>
     </div>
 
     <div class="pokemon-list">
-      <div v-for="pokemon in pokeList.results" class="pokemon">
+      <div v-for="pokemon in pokeList" :key="pokemon.name" class="pokemon">
         <h2>
           {{ pokemon.name }}
         </h2>
-
         <Pokeinfo :pokemonUrl="pokemon.url" />
       </div>
     </div>
@@ -159,11 +191,11 @@ onMounted(async () => {
 
   .pokemon-list {
     display: block;
-    padding:40px 15px;
+    padding: 40px 15px;
   }
 
-  .pokemon{
-    margin-top:15px;
+  .pokemon {
+    margin-top: 15px;
   }
 }
 </style>
