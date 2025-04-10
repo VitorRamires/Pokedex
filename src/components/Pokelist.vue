@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { pokemonList } from "../api/getPokelist.js";
 import Pokeinfo from "./Pokeinfo.vue";
 
@@ -7,7 +7,19 @@ const pokeList = ref([]);
 const filterName = ref("");
 const limit = ref(20);
 const fetching = ref(false);
+
 let offset = ref(0);
+let filteredPokemons = ref([]);
+
+watch(filterName, (newValue) => {
+  if (filterName === "") {
+    filteredPokemons.value = pokeList.value;
+  } else {
+    filteredPokemons.value = pokeList.value.filter((pokemon) => {
+      return pokemon.name.toLowerCase().includes(newValue.toLowerCase());
+    });
+  }
+});
 
 onMounted(async () => {
   await loadPokemons();
@@ -18,14 +30,12 @@ async function loadPokemons() {
   if (fetching.value) {
     return;
   }
-
   fetching.value = true;
-
   const response = await pokemonList(limit.value, offset.value);
-
   try {
     pokeList.value.push(...response.results);
     offset.value += 20;
+    filteredPokemons.value = pokeList.value;
   } catch {
     alert("Erro ao carregar mais pokemons!");
   } finally {
@@ -38,7 +48,7 @@ function endScreen() {
   let heightWindow = document.documentElement.offsetHeight;
   let clientHeight = document.documentElement.clientHeight;
 
-  if (scrollTop + clientHeight >= heightWindow - 50) {
+  if (scrollTop + clientHeight >= heightWindow - 350) {
     loadPokemons();
   }
 }
@@ -65,7 +75,11 @@ function endScreen() {
     </div>
 
     <div class="pokemon-list">
-      <div v-for="pokemon in pokeList" :key="pokemon.name" class="pokemon">
+      <div
+        v-for="pokemon in filteredPokemons"
+        :key="pokemon.name"
+        class="pokemon"
+      >
         <h2>
           {{ pokemon.name }}
         </h2>

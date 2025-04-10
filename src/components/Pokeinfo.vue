@@ -31,30 +31,27 @@ onMounted(async () => {
   </div>
 
   <div class="pokemom-infos">
-    <div class="moves">
+    <div class="moves" v-if="pokeInfo && pokeInfo.moves">
       <h3>Movimentos</h3>
 
-      <ul v-if="pokeInfo && pokeInfo.moves">
+      <ul>
         <li v-for="move in pokeInfo.moves" :key="move.move.name">
           <p>{{ move.move.name }}</p>
         </li>
       </ul>
-
-      <p v-else>Carregando as Movimentos do pokemon...</p>
     </div>
 
     <div class="evolutions" v-if="speciesUrl">
       <Evolutions :speciesUrl="speciesUrl" />
     </div>
 
-    <div class="game-indices">
+    <div class="game-indices" v-if="pokeInfo && pokeInfo.game_indices">
       <h3>Incluídos nos games:</h3>
-      <ul v-if="pokeInfo && pokeInfo.game_indices">
+      <ul>
         <li v-for="indice in pokeInfo.game_indices" :key="indice.version.name">
           <p>Pokemon: {{ indice.version.name }}</p>
         </li>
       </ul>
-      <p v-else>Carregando as habilidades do pokemon...</p>
     </div>
   </div>
 </template>

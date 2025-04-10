@@ -39,7 +39,6 @@ function evolutionChain(chain) {
         {{ evo }}
       </li>
     </ul>
-    <p v-else>Carregando evoluções...</p>
   </div>
 </template>
 
