@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import { pokemonInfos } from "../api/getPokelist.js";
 import Evolutions from "../components/Evolutions.vue";
-import Sprites from "./sprites.vue";
+import Sprites from "./Sprites.vue";
 
 const props = defineProps({
   pokemonUrl: String,
