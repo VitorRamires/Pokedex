@@ -44,9 +44,10 @@ onMounted(async () => {
       <div class="moves">
         <h3>Movimentos</h3>
         <ul>
-          <li v-for="move in pokeInfo.moves" :key="move.move.name">
+          <li v-for="move in pokeInfo.moves" :key="move.move.name" v-if="pokeInfo.moves.length">
             <p>{{ move.move.name }}</p>
           </li>
+          <p v-else>Sem movimentos conhecidos</p>
         </ul>
       </div>
       <div class="evolutions" v-if="speciesUrl">
@@ -55,12 +56,10 @@ onMounted(async () => {
       <div class="game-indices">
         <h3>Incluídos nos games:</h3>
         <ul>
-          <li
-            v-for="indice in pokeInfo.game_indices"
-            :key="indice.version.name"
-          >
+          <li v-for="indice in pokeInfo.game_indices" :key="indice.version.name" v-if="pokeInfo.game_indices.length">
             <p>Pokemon: {{ indice.version.name }}</p>
           </li>
+          <p>Este pokemon não se encontra em nenhum jogo</p>
         </ul>
       </div>
     </div>
