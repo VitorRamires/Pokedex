@@ -94,9 +94,9 @@ onMounted(async () => {
 }
 
 .game-indices ul {
-  display: flex;
-  flex-wrap: wrap;
   list-style-type: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 15px;
 }
 

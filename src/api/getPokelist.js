@@ -6,12 +6,14 @@ export async function pokemonList() {
   );
   const listPokemons = await response.json();
 
+  // separando o ID de cada pokemon e somando ao nome e a URL
   const newPokemons = listPokemons.results.map((pokemon) => {
     const urlPokemon = pokemon.url.split("/");
     const pokemonID = urlPokemon[urlPokemon.length - 2];
     pokemon = { ...pokemon, id: pokemonID };
     return pokemon;
   });
+
 
   return { ...listPokemons, results: newPokemons };
 }
@@ -37,14 +39,15 @@ export async function getAllTypes() {
   return { ...types, results: newTypes };
 }
 
+
 export async function getPokemonByTypes(type) {
   const response = await fetch(`https://pokeapi.co/api/v2/type/${type}/`);
   const typeInfo = await response.json();
 
-  const allPokemons = typeInfo.pokemon
-  const finalPokemonList = allPokemons.map(pokemonInfo => {
-    return pokemonInfo.pokemon
-  })
+  const allPokemons = typeInfo.pokemon;
+  const finalPokemonList = allPokemons.map((pokemonInfo) => {
+    return pokemonInfo.pokemon;
+  });
 
   return finalPokemonList;
 }

@@ -1,21 +1,31 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
-import { getAllTypes, pokemonList } from "../api/getPokelist.js";
+import {
+  getAllTypes,
+  pokemonList,
+  getPokemonByTypes,
+} from "../api/getPokelist.js";
 import Pokeinfo from "./Pokeinfo.vue";
 
 const pokeList = ref([]);
 const scrollPokemons = ref([]);
 const allTypes = ref([]);
 
+//Filtros
+let filteredPokemons = ref([]);
 const filterName = ref("");
 const filterID = ref("");
 const filterType = ref("");
 
+//scroll
 const limit = ref(20);
-const fetching = ref(false);
 let offset = ref(0);
-let filteredPokemons = ref([]);
+const fetching = ref(false);
 
+// Estado para controlar a expansão dos filtros
+const isExpanded = ref(false);
+
+// Filtrando pelo nome ao mudar o valor do input
 watch(filterName, (newValue) => {
   if (newValue === "") {
     filteredPokemons.value = scrollPokemons.value;
@@ -26,6 +36,7 @@ watch(filterName, (newValue) => {
   }
 });
 
+// Filtrando pelo ID ao mudar o valor do input
 watch(filterID, (newValue) => {
   if (newValue === "") {
     filteredPokemons.value = scrollPokemons.value;
@@ -36,6 +47,7 @@ watch(filterID, (newValue) => {
   }
 });
 
+// Filtrando pelo Tipo ao mudar o valor do select
 watch(filterType, async (newValue) => {
   if (newValue === "") {
     filteredPokemons.value = scrollPokemons.value;
@@ -45,18 +57,6 @@ watch(filterType, async (newValue) => {
   }
 });
 
-async function getPokemonByTypes(type) {
-  const response = await fetch(`https://pokeapi.co/api/v2/type/${type}/`);
-  const typeInfo = await response.json();
-
-  const allPokemons = typeInfo.pokemon;
-  const finalPokemonList = allPokemons.map((pokemonInfo) => {
-    return pokemonInfo.pokemon;
-  });
-
-  return finalPokemonList;
-}
-
 onMounted(async () => {
   await getAllPokemons();
   addPokemons();
@@ -65,6 +65,7 @@ onMounted(async () => {
   window.addEventListener("scroll", endScreen);
 });
 
+// Pega a lista de todos os pokemons existentes
 async function getAllPokemons() {
   if (fetching.value) {
     return;
@@ -81,32 +82,40 @@ async function getAllPokemons() {
   }
 }
 
+// Salva de 20 em 20 pokenons numa nova array
 async function addPokemons() {
   scrollPokemons.value.push(
     ...pokeList.value.slice(offset.value, offset.value + limit.value)
   );
   offset.value += limit.value;
-
   filteredPokemons.value = scrollPokemons.value;
 }
 
+// Calcula o final da tela para aplicar a iteração do scroll
 function endScreen() {
-  if (filterName != "" || filterID != "" || filterType != "") return;
-
   let scrollTop = document.documentElement.scrollTop;
   let heightWindow = document.documentElement.offsetHeight;
   let clientHeight = document.documentElement.clientHeight;
+
+  if (filterName.value || filterID.value || filterType.value) {
+    return;
+  }
 
   if (scrollTop + clientHeight >= heightWindow - 350) {
     addPokemons();
   }
 }
+
+function toggleExpand() {
+  isExpanded.value = !isExpanded.value;
+}
 </script>
 
 <template>
   <div class="content">
-    <div class="filters">
+    <div class="filters" :class="{ expanded: isExpanded }">
       <h2>Filtros de pokemons</h2>
+
       <div class="filter">
         <p>Nome do pokemon</p>
         <input type="text" v-model="filterName" />
@@ -121,12 +130,16 @@ function endScreen() {
         <p>Tipos</p>
         <div class="types">
           <select name="" id="" v-model="filterType">
+            <option value="">Todos</option>
             <option :value="type.id" v-for="type in allTypes">
               {{ type.name }}
             </option>
           </select>
         </div>
       </div>
+      <h2 class="arrow" @click="toggleExpand">
+        <img src="../assets/arrow.svg" alt="" />
+      </h2>
     </div>
 
     <div class="pokemon-list" v-if="filteredPokemons.length !== 0">
@@ -147,6 +160,16 @@ function endScreen() {
 </template>
 
 <style scoped>
+.arrow {
+  display: none;
+  margin-top: 30px;
+}
+
+.arrow img {
+  width: 30px;
+  height: auto;
+}
+
 .content {
   display: flex;
   align-items: start;
@@ -160,11 +183,12 @@ function endScreen() {
   left: 0;
   top: 0;
   height: 100vh;
-  padding: 35px;
+  padding: 25px 35px 35px 35px;
   font-family: "Nunito";
   background: #2e2e2ec9;
   color: #ececec;
   z-index: 55;
+  text-align: center;
 }
 
 .filters h2 {
@@ -181,13 +205,20 @@ function endScreen() {
   font-weight: 600;
 }
 
-.filter input {
+.filter input,
+.filter select {
   width: 100%;
   padding: 8px 10px;
   border-radius: 5px;
   border: none;
   background-color: #f1f1f1;
   outline: none;
+  border: 2px solid transparent;
+}
+
+.filter input:focus,
+.filter select:focus {
+  border: 2px solid #00f7ff;
 }
 
 .pokemon-list {
@@ -248,10 +279,6 @@ function endScreen() {
   overflow: auto;
 }
 
-.filter {
-  position: relative;
-}
-
 @media screen and (max-width: 790px) {
   .content {
     width: 100%;
@@ -259,20 +286,65 @@ function endScreen() {
     align-items: unset;
   }
 
+  .arrow {
+    display: block;
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%) rotate(180deg);
+    cursor: pointer;
+    z-index: 66;
+    transition: 0.4s;
+  }
+
+  .expanded .arrow {
+    transform: translateX(-50%) rotate(0deg);
+  }
+
   .filters {
-    height: 100px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 150px;
     width: 100%;
     backdrop-filter: blur(30px);
     overflow: hidden;
+    transition: 0.4s;
+  }
+
+  .filters h2 {
+    margin-bottom: 100px;
+  }
+
+  .filter {
+    text-align: start;
   }
 
   .pokemon-list {
-    display: block;
+    margin-top: 140px;
     padding: 40px 15px;
   }
 
   .pokemon {
     margin-top: 15px;
+  }
+
+  .filters.expanded {
+    height: 470px;
+    max-height: 100%;
+  }
+}
+
+@media screen and (max-width: 330px) {
+  .filters h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+}
+
+@media screen and (max-height: 425px) {
+  .filters {
+    overflow: auto;
   }
 }
 </style>
