@@ -10,6 +10,7 @@ const props = defineProps({
 const pokeInfo = ref(null);
 const speciesUrl = ref(null);
 
+
 onMounted(async () => {
   try {
     pokeInfo.value = await pokemonInfos(props.pokemonUrl);

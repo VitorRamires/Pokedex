@@ -22,7 +22,6 @@ const limit = ref(20);
 let offset = ref(0);
 const fetching = ref(false);
 
-// Estado para controlar a expansão dos filtros
 const isExpanded = ref(false);
 
 // Filtrando pelo nome ao mudar o valor do input
@@ -117,7 +116,7 @@ function toggleExpand() {
       <h2>Filtros de pokemons</h2>
 
       <div class="filter">
-        <p>Nome do pokemon</p>
+        <p>Nome / espécie do pokemon</p>
         <input type="text" v-model="filterName" />
       </div>
 
@@ -156,11 +155,10 @@ function toggleExpand() {
     </div>
 
     <div class="not-found" v-else>
-      <img src="/src/assets/not-found.svg" alt="">
+      <img src="/src/assets/not-found.svg" alt="" />
       <p>Ops... Nenhum Pokemon foi encontrado</p>
     </div>
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
