@@ -49,10 +49,10 @@ async function getPokemonByTypes(type) {
   const response = await fetch(`https://pokeapi.co/api/v2/type/${type}/`);
   const typeInfo = await response.json();
 
-  const allPokemons = typeInfo.pokemon
-  const finalPokemonList = allPokemons.map(pokemonInfo => {
-    return pokemonInfo.pokemon
-  })
+  const allPokemons = typeInfo.pokemon;
+  const finalPokemonList = allPokemons.map((pokemonInfo) => {
+    return pokemonInfo.pokemon;
+  });
 
   return finalPokemonList;
 }
@@ -91,6 +91,8 @@ async function addPokemons() {
 }
 
 function endScreen() {
+  if (filterName != "" || filterID != "" || filterType != "") return;
+
   let scrollTop = document.documentElement.scrollTop;
   let heightWindow = document.documentElement.offsetHeight;
   let clientHeight = document.documentElement.clientHeight;
